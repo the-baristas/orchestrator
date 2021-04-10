@@ -29,7 +29,7 @@ public class OrchestratorController {
 
     @GetMapping("/airplanes/{id}")
     public ResponseEntity<String> findAirplaneById(@PathVariable Long id) {
-        return webClient.get().uri(FLIGHT_SERVICE_PATH + "airplanes/{id}", id)
+        return webClient.get().uri(FLIGHT_SERVICE_PATH + "/airplanes/{id}", id)
                 .retrieve().toEntity(String.class).block();
     }
 
