@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
 
 @CrossOrigin
@@ -19,9 +20,12 @@ public class OrchestratorController {
     private static final String FLIGHT_SERVICE_PATH = "http://flight-service";
 
     private final WebClient webClient;
+    private final RestTemplate restTemplate;
 
-    public OrchestratorController(WebClient webclient) {
+    public OrchestratorController(WebClient webclient,
+            RestTemplate restTemplate) {
         this.webClient = webclient;
+        this.restTemplate = restTemplate;
     }
 
     @GetMapping("/airplanes")
@@ -63,5 +67,11 @@ public class OrchestratorController {
         return webClient.delete()
                 .uri(FLIGHT_SERVICE_PATH + "/airplanes/{id}", id).retrieve()
                 .toEntity(String.class).block();
+    }
+
+    @GetMapping("/utopia_airlines/user")
+    public ResponseEntity<String> findAllUsers() {
+        return restTemplate.getForEntity(
+                "http://user-service/utopia_airlines/user", String.class);
     }
 }
