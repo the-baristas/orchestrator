@@ -11,17 +11,22 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
 
 @CrossOrigin
 @RestController
 public class OrchestratorController {
     private static final String FLIGHT_SERVICE_PATH = "http://flight-service";
+    private static final String BOOKING_SERVICE_PATH = "http://booking-service";
 
     private final WebClient webClient;
+    private final RestTemplate restTemplate;
 
-    public OrchestratorController(WebClient webclient) {
+    public OrchestratorController(WebClient webclient,
+            RestTemplate restTemplate) {
         this.webClient = webclient;
+        this.restTemplate = restTemplate;
     }
 
     @GetMapping("/airplanes")
@@ -63,5 +68,11 @@ public class OrchestratorController {
         return webClient.delete()
                 .uri(FLIGHT_SERVICE_PATH + "/airplanes/{id}", id).retrieve()
                 .toEntity(String.class).block();
+    }
+
+    @GetMapping("/airplanes")
+    public ResponseEntity<String> findAllBookings() {
+        return webClient.get().uri(BOOKING_SERVICE_PATH + "/bookings")
+                .retrieve().toEntity(String.class).block();
     }
 }
