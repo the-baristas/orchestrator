@@ -25,6 +25,9 @@ import org.springframework.web.reactive.function.client.WebClient;
 @RestController
 public class OrchestratorController {
     private static final String FLIGHT_SERVICE_PATH = "http://flight-service";
+
+    private static final String BOOKING_SERVICE_PATH = "http://booking-service";
+
     private static final String USER_SERVICE_PATH = "http://user-service";
 
     private final WebClient webClient;
@@ -35,6 +38,8 @@ public class OrchestratorController {
         this.webClient = webclient;
         this.restTemplate = restTemplate;
     }
+
+    // Airplane Service
 
     @GetMapping("/airplanes")
     public ResponseEntity<String> findAllAirplanes() {
@@ -76,6 +81,7 @@ public class OrchestratorController {
                 .uri(FLIGHT_SERVICE_PATH + "/airplanes/{id}", id).retrieve()
                 .toEntity(String.class).block();
     }
+
     
     @PostMapping("/login")
     public ResponseEntity<String> login(@RequestBody String json){
@@ -88,8 +94,20 @@ public class OrchestratorController {
     	HttpEntity<String> request = new HttpEntity<String>(headers);
          return restTemplate.exchange(
                 USER_SERVICE_PATH +"/users",HttpMethod.GET, request, String.class);
+
     }
-    
+    // Booking Service
+
+    @GetMapping("/bookings")
+    public ResponseEntity<String> findAllBookings() {
+        return webClient.get().uri(BOOKING_SERVICE_PATH + "/bookings")
+                .retrieve().toEntity(String.class).block();
+    }
+
+    // User Service
+
+
+
     @GetMapping("/users/{id}")
     public ResponseEntity<String> findUserById(@RequestHeader HttpHeaders headers, @PathVariable Long id){
     	HttpEntity<String> request = new HttpEntity<String>(headers);
@@ -109,22 +127,23 @@ public class OrchestratorController {
     	HttpEntity<String> request = new HttpEntity<String>(headers);
         return restTemplate.exchange(
                 USER_SERVICE_PATH +"/users/email/" + email ,HttpMethod.GET, request, String.class);
+   
     }
-    
+
     @PostMapping("/users")
     public ResponseEntity<String> createUser(@RequestHeader HttpHeaders headers, @RequestBody String json){
     	HttpEntity<String> request = new HttpEntity<String>(json, headers);
     	return restTemplate.exchange(
                 USER_SERVICE_PATH +"/users", HttpMethod.POST, request, String.class);
     }
-    
+
     @PutMapping("/users/{id}")
     public ResponseEntity<String> updateUser(@RequestHeader HttpHeaders headers, @RequestBody String json, @PathVariable Long id){
     	HttpEntity<String> request = new HttpEntity<String>(json, headers);
     	return restTemplate.exchange(
                 USER_SERVICE_PATH +"/users/" + id ,HttpMethod.PUT, request, String.class);
     }
-    
+
     @DeleteMapping("/users/{id}")
     public ResponseEntity<String> deleteUser(@RequestHeader HttpHeaders headers, @PathVariable Long id){
     	HttpEntity<String> request = new HttpEntity<String>(headers);
