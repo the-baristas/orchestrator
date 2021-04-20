@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
 
-@CrossOrigin
+@CrossOrigin(exposedHeaders = "Authorization")
 @RestController
 public class OrchestratorController {
     private static final String FLIGHT_SERVICE_PATH = "http://flight-service";
@@ -85,8 +85,11 @@ public class OrchestratorController {
     // User Service
     
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody String json){
-    	return restTemplate.postForEntity("http://user-service/login", new HttpEntity<String>(json), String.class);
+    public ResponseEntity<Object> login(@RequestBody String json){
+//    	return webClient.post().uri(USER_SERVICE_PATH + "/login")
+//    			.contentType(MediaType.APPLICATION_JSON).bodyValue(json)
+//                .retrieve().toEntity(String.class).block();
+    	return restTemplate.exchange("http://user-service/login", HttpMethod.POST, new HttpEntity<String>(json), Object.class);
     }
 
     @GetMapping("/users")
