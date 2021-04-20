@@ -82,6 +82,7 @@ public class OrchestratorController {
                 .toEntity(String.class).block();
     }
 
+    // User Service
     
     @PostMapping("/login")
     public ResponseEntity<String> login(@RequestBody String json){
@@ -96,17 +97,6 @@ public class OrchestratorController {
                 USER_SERVICE_PATH +"/users",HttpMethod.GET, request, String.class);
 
     }
-    // Booking Service
-
-    @GetMapping("/bookings")
-    public ResponseEntity<String> findAllBookings() {
-        return webClient.get().uri(BOOKING_SERVICE_PATH + "/bookings")
-                .retrieve().toEntity(String.class).block();
-    }
-
-    // User Service
-
-
 
     @GetMapping("/users/{id}")
     public ResponseEntity<String> findUserById(@RequestHeader HttpHeaders headers, @PathVariable Long id){
@@ -149,6 +139,15 @@ public class OrchestratorController {
     	HttpEntity<String> request = new HttpEntity<String>(headers);
         return restTemplate.exchange(
                 USER_SERVICE_PATH +"/users/" + id, HttpMethod.DELETE, request, String.class);
+    }
+    
+    
+    // Booking Service
+
+    @GetMapping("/bookings")
+    public ResponseEntity<String> findAllBookings() {
+        return webClient.get().uri(BOOKING_SERVICE_PATH + "/bookings")
+                .retrieve().toEntity(String.class).block();
     }
     
 }
