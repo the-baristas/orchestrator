@@ -17,7 +17,6 @@ import org.springframework.web.reactive.function.client.WebClient;
 @RestController
 public class OrchestratorController {
     private static final String FLIGHT_SERVICE_PATH = "http://flight-service";
-    private static final String USERS_SERVICE_PATH = "http://users-service";
 
     private final WebClient webClient;
 
@@ -66,48 +65,5 @@ public class OrchestratorController {
                 .toEntity(String.class).block();
     }
     
-    @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody String json){
-        return webClient.post().uri(USERS_SERVICE_PATH + "/login")
-                .contentType(MediaType.APPLICATION_JSON).bodyValue(json)
-                .retrieve().toEntity(String.class).block();
-    }
-    
-    @GetMapping("/users")
-    public ResponseEntity<String> findAllUsers(){
-    	return webClient.get().uri(USERS_SERVICE_PATH + "/users")
-                .retrieve().toEntity(String.class).block();
-    }
-    
-    @GetMapping("/users/{id}")
-    public ResponseEntity<String> findUserById(@PathVariable Long id){
-    	return webClient.get().uri(USERS_SERVICE_PATH + "/users/{id}", id)
-                .retrieve().toEntity(String.class).block();
-    }
-    @GetMapping("/users/email/{email}")
-    public ResponseEntity<String> findUserByEmail(@PathVariable String email){
-    	return webClient.get().uri(USERS_SERVICE_PATH + "/users/email/{email}", email)
-                .retrieve().toEntity(String.class).block();
-    }
-    
-    @PostMapping("/users")
-    public ResponseEntity<String> createUser(@RequestBody String json){
-        return webClient.post().uri(USERS_SERVICE_PATH + "/users")
-                .contentType(MediaType.APPLICATION_JSON).bodyValue(json)
-                .retrieve().toEntity(String.class).block();
-    }
-    
-    @PutMapping("/users/{id}")
-    public ResponseEntity<String> updateUser(@PathVariable("id") Long id, @RequestBody String json){
-        return webClient.put().uri(USERS_SERVICE_PATH + "/users/{id}", id)
-                .contentType(MediaType.APPLICATION_JSON).bodyValue(json)
-                .retrieve().toEntity(String.class).block();
-    }
-    
-    @DeleteMapping("/users/{id}")
-    public ResponseEntity<String> deleteUser(@PathVariable Long id) {
-        return webClient.delete()
-                .uri(USERS_SERVICE_PATH + "/users/{id}", id).retrieve()
-                .toEntity(String.class).block();
-    }
+ 
 }
