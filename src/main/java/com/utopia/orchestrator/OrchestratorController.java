@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
 
 @CrossOrigin
@@ -20,9 +21,12 @@ public class OrchestratorController {
     private static final String USERS_SERVICE_PATH = "http://users-service";
 
     private final WebClient webClient;
+    private final RestTemplate restTemplate;
 
-    public OrchestratorController(WebClient webclient) {
+    public OrchestratorController(WebClient webclient,
+            RestTemplate restTemplate) {
         this.webClient = webclient;
+        this.restTemplate = restTemplate;
     }
 
     @GetMapping("/airplanes")
@@ -65,45 +69,48 @@ public class OrchestratorController {
                 .uri(FLIGHT_SERVICE_PATH + "/airplanes/{id}", id).retrieve()
                 .toEntity(String.class).block();
     }
-    
+
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody String json){
+    public ResponseEntity<String> login(@RequestBody String json) {
         return webClient.post().uri(USERS_SERVICE_PATH + "/login")
                 .contentType(MediaType.APPLICATION_JSON).bodyValue(json)
                 .retrieve().toEntity(String.class).block();
     }
-    
+
     @GetMapping("/users")
-    public ResponseEntity<String> findAllUsers(){
-    	return webClient.get().uri(USERS_SERVICE_PATH + "/users")
-                .retrieve().toEntity(String.class).block();
+    public ResponseEntity<String> findAllUsers() {
+        return restTemplate.getForEntity(USERS_SERVICE_PATH + "/users",
+                String.class);
     }
-    
+
     @GetMapping("/users/{id}")
-    public ResponseEntity<String> findUserById(@PathVariable Long id){
-    	return webClient.get().uri(USERS_SERVICE_PATH + "/users/{id}", id)
+    public ResponseEntity<String> findUserById(@PathVariable Long id) {
+        return webClient.get().uri(USERS_SERVICE_PATH + "/users/{id}", id)
                 .retrieve().toEntity(String.class).block();
     }
+
     @GetMapping("/users/email/{email}")
-    public ResponseEntity<String> findUserByEmail(@PathVariable String email){
-    	return webClient.get().uri(USERS_SERVICE_PATH + "/users/email/{email}", email)
+    public ResponseEntity<String> findUserByEmail(@PathVariable String email) {
+        return webClient.get()
+                .uri(USERS_SERVICE_PATH + "/users/email/{email}", email)
                 .retrieve().toEntity(String.class).block();
     }
-    
+
     @PostMapping("/users")
-    public ResponseEntity<String> createUser(@RequestBody String json){
+    public ResponseEntity<String> createUser(@RequestBody String json) {
         return webClient.post().uri(USERS_SERVICE_PATH + "/users")
                 .contentType(MediaType.APPLICATION_JSON).bodyValue(json)
                 .retrieve().toEntity(String.class).block();
     }
-    
+
     @PutMapping("/users/{id}")
-    public ResponseEntity<String> updateUser(@PathVariable("id") Long id, @RequestBody String json){
+    public ResponseEntity<String> updateUser(@PathVariable("id") Long id,
+            @RequestBody String json) {
         return webClient.put().uri(USERS_SERVICE_PATH + "/users/{id}", id)
                 .contentType(MediaType.APPLICATION_JSON).bodyValue(json)
                 .retrieve().toEntity(String.class).block();
     }
-    
+
     @DeleteMapping("/users/{id}")
     public ResponseEntity<String> deleteUser(@PathVariable Long id) {
         return webClient.delete()
