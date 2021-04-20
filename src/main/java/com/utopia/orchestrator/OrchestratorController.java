@@ -19,6 +19,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 public class OrchestratorController {
     private static final String FLIGHT_SERVICE_PATH = "http://flight-service";
     private static final String BOOKING_SERVICE_PATH = "http://booking-service";
+    private static final String USER_SERVICE_PATH = "http://user-service";
 
     private final WebClient webClient;
     private final RestTemplate restTemplate;
@@ -70,9 +71,15 @@ public class OrchestratorController {
                 .toEntity(String.class).block();
     }
 
-    @GetMapping("/airplanes")
+    @GetMapping("/bookings")
     public ResponseEntity<String> findAllBookings() {
         return webClient.get().uri(BOOKING_SERVICE_PATH + "/bookings")
                 .retrieve().toEntity(String.class).block();
+    }
+
+    @GetMapping("/users")
+    public ResponseEntity<String> findAllUsers() {
+        return restTemplate.getForEntity(USER_SERVICE_PATH + "/users",
+                String.class);
     }
 }
