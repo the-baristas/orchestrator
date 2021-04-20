@@ -88,39 +88,4 @@ public class OrchestratorController {
         return restTemplate.getForEntity(USER_SERVICE_PATH + "/users",
                 String.class);
     }
-
-    @GetMapping("/users/{id}")
-    public ResponseEntity<String> findUserById(@PathVariable Long id) {
-        return webClient.get().uri(USER_SERVICE_PATH + "/users/{id}", id)
-                .retrieve().toEntity(String.class).block();
-    }
-
-    @GetMapping("/users/email/{email}")
-    public ResponseEntity<String> findUserByEmail(@PathVariable String email) {
-        return webClient.get()
-                .uri(USER_SERVICE_PATH + "/users/email/{email}", email)
-                .retrieve().toEntity(String.class).block();
-    }
-
-    @PostMapping("/users")
-    public ResponseEntity<String> createUser(@RequestBody String json) {
-        return webClient.post().uri(USER_SERVICE_PATH + "/users")
-                .contentType(MediaType.APPLICATION_JSON).bodyValue(json)
-                .retrieve().toEntity(String.class).block();
-    }
-
-    @PutMapping("/users/{id}")
-    public ResponseEntity<String> updateUser(@PathVariable("id") Long id,
-            @RequestBody String json) {
-        return webClient.put().uri(USER_SERVICE_PATH + "/users/{id}", id)
-                .contentType(MediaType.APPLICATION_JSON).bodyValue(json)
-                .retrieve().toEntity(String.class).block();
-    }
-
-    @DeleteMapping("/users/{id}")
-    public ResponseEntity<String> deleteUser(@PathVariable Long id) {
-        return webClient.delete()
-                .uri(USER_SERVICE_PATH + "/users/{id}", id).retrieve()
-                .toEntity(String.class).block();
-    }
 }
