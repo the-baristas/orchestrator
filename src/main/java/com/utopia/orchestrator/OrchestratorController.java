@@ -2,15 +2,10 @@ package com.utopia.orchestrator;
 
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.client.WebClient;
+
+import java.sql.Timestamp;
 
 @CrossOrigin
 @RestController
@@ -54,5 +49,51 @@ public class OrchestratorController {
         return webClient.delete()
                 .uri(FLIGHT_SERVICE_PATH + "/airplanes/{id}", id).retrieve()
                 .toEntity(String.class).block();
+    }
+
+    @GetMapping("/flights")
+    public ResponseEntity<String> findAllFlights() {
+        return webClient.get().uri(FLIGHT_SERVICE_PATH + "/flights")
+                .retrieve().toEntity(String.class).block();
+    }
+
+    @GetMapping("/flights/{id}")
+    public ResponseEntity<String> findFlightById(@PathVariable Long id) {
+        return webClient.get().uri(FLIGHT_SERVICE_PATH + "/flights/{id}", id)
+                .retrieve().toEntity(String.class).block();
+    }
+
+    @GetMapping("/search/flightsbylocation")
+    public ResponseEntity<String> findFlightsByRoute(@RequestParam(name = "originId") String originId,
+                                                                @RequestParam(name = "destinationId") String destinationId) {
+        return webClient.get().uri(FLIGHT_SERVICE_PATH + "/search/flightsbylocation?originId={originId}&destinationId={destinationId}", originId, destinationId)
+                .retrieve().toEntity(String.class).block();
+    }
+
+    @PostMapping("/search/flights-query")
+    public ResponseEntity<String> findFlightsByRouteAndLocation(@RequestParam(name = "originId") String originId,
+                                                                @RequestParam(name = "destinationId") String destinationId,
+                                                                @RequestBody String json) {
+        return webClient.post().uri(FLIGHT_SERVICE_PATH + "/search/flights-query?originId={originId}&destinationId={destinationId}", originId, destinationId)
+                .contentType(MediaType.APPLICATION_JSON).bodyValue(json)
+                .retrieve().toEntity(String.class).block();
+    }
+
+    @GetMapping("/airports")
+    public ResponseEntity<String> findAllAirports() {
+        return webClient.get().uri(FLIGHT_SERVICE_PATH + "/airports")
+                .retrieve().toEntity(String.class).block();
+    }
+
+    @GetMapping("/routes")
+    public ResponseEntity<String> findAllRoutes() {
+        return webClient.get().uri(FLIGHT_SERVICE_PATH + "/routes")
+                .retrieve().toEntity(String.class).block();
+    }
+
+    @GetMapping("/airports-containing")
+    public ResponseEntity<String> findAirportsContaining(@RequestParam(name = "contains") String contains) {
+        return webClient.get().uri(FLIGHT_SERVICE_PATH + "/airports-containing?contains={contains}", contains)
+                .retrieve().toEntity(String.class).block();
     }
 }
