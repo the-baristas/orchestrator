@@ -1,13 +1,11 @@
 package com.utopia.orchestrator;
 
-
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,16 +16,16 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.server.ResponseStatusException;
 
 @CrossOrigin(exposedHeaders = "Authorization")
 @RestController
 public class OrchestratorController {
     private static final String FLIGHT_SERVICE_PATH = "http://flight-service";
-
     private static final String BOOKING_SERVICE_PATH = "http://booking-service";
-
     private static final String USER_SERVICE_PATH = "http://user-service";
 
     private final WebClient webClient;
@@ -83,68 +81,96 @@ public class OrchestratorController {
     }
 
     // User Service
-    
+
     @PostMapping("/login")
-    public ResponseEntity<Object> login(@RequestBody String json){
-//    	return webClient.post().uri(USER_SERVICE_PATH + "/login")
-//    			.contentType(MediaType.APPLICATION_JSON).bodyValue(json)
-//                .retrieve().toEntity(String.class).block();
-    	return restTemplate.exchange("http://user-service/login", HttpMethod.POST, new HttpEntity<String>(json), Object.class);
+    public ResponseEntity<Object> login(@RequestBody String json) {
+        return restTemplate.exchange("http://user-service/login",
+                HttpMethod.POST, new HttpEntity<String>(json), Object.class);
     }
 
     @GetMapping("/users")
-    public ResponseEntity<String> findAllUsers(@RequestHeader HttpHeaders headers) {
-
-    	HttpEntity<String> request = new HttpEntity<String>(headers);
-         return restTemplate.exchange(
-                USER_SERVICE_PATH +"/users",HttpMethod.GET, request, String.class);
-
+    public ResponseEntity<String> findAllUsers(
+            @RequestHeader HttpHeaders headers) {
+        HttpEntity<String> request = new HttpEntity<String>(headers);
+        return restTemplate.exchange(USER_SERVICE_PATH + "/users",
+                HttpMethod.GET, request, String.class);
     }
 
     @GetMapping("/users/{id}")
-    public ResponseEntity<String> findUserById(@RequestHeader HttpHeaders headers, @PathVariable Long id){
-    	HttpEntity<String> request = new HttpEntity<String>(headers);
-        return restTemplate.exchange(
-                USER_SERVICE_PATH +"/users/" + id ,HttpMethod.GET, request, String.class);
+    public ResponseEntity<String> findUserById(
+            @RequestHeader HttpHeaders headers, @PathVariable Long id) {
+        HttpEntity<String> request = new HttpEntity<String>(headers);
+        try {
+            return restTemplate.exchange(USER_SERVICE_PATH + "/users/" + id,
+                    HttpMethod.GET, request, String.class);
+        } catch (RestClientException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                    "Could not find User with id: " + id);
+        }
     }
-    
+
     @GetMapping("/users/username/{username}")
-    public ResponseEntity<String> findUserByUsername(@RequestHeader HttpHeaders headers, @PathVariable String username){
-    	HttpEntity<String> request = new HttpEntity<String>(headers);
-        return restTemplate.exchange(
-                USER_SERVICE_PATH +"/users/username/" + username ,HttpMethod.GET, request, String.class);
+    public ResponseEntity<String> findUserByUsername(
+            @RequestHeader HttpHeaders headers, @PathVariable String username) {
+        HttpEntity<String> request = new HttpEntity<String>(headers);
+        try {
+            return restTemplate.exchange(
+                    USER_SERVICE_PATH + "/users/username/" + username,
+                    HttpMethod.GET, request, String.class);
+        } catch (RestClientException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                    "Could not find User with username: " + username);
+        }
     }
-    
+
     @GetMapping("/users/email/{email}")
-    public ResponseEntity<String> findUserByEmail(@RequestHeader HttpHeaders headers, @PathVariable String email){
-    	HttpEntity<String> request = new HttpEntity<String>(headers);
-        return restTemplate.exchange(
-                USER_SERVICE_PATH +"/users/email/" + email ,HttpMethod.GET, request, String.class);
-   
+    public ResponseEntity<String> findUserByEmail(
+            @RequestHeader HttpHeaders headers, @PathVariable String email) {
+        HttpEntity<String> request = new HttpEntity<String>(headers);
+        try {
+            return restTemplate.exchange(
+                    USER_SERVICE_PATH + "/users/email/" + email, HttpMethod.GET,
+                    request, String.class);
+        } catch (RestClientException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                    "Could not find User with email: " + email);
+        }
     }
 
     @PostMapping("/users")
-    public ResponseEntity<String> createUser(@RequestHeader HttpHeaders headers, @RequestBody String json){
-    	HttpEntity<String> request = new HttpEntity<String>(json, headers);
-    	return restTemplate.exchange(
-                USER_SERVICE_PATH +"/users", HttpMethod.POST, request, String.class);
+    public ResponseEntity<String> createUser(@RequestHeader HttpHeaders headers,
+            @RequestBody String json) {
+        HttpEntity<String> request = new HttpEntity<String>(json, headers);
+        return restTemplate.exchange(USER_SERVICE_PATH + "/users",
+                HttpMethod.POST, request, String.class);
     }
 
     @PutMapping("/users/{id}")
-    public ResponseEntity<String> updateUser(@RequestHeader HttpHeaders headers, @RequestBody String json, @PathVariable Long id){
-    	HttpEntity<String> request = new HttpEntity<String>(json, headers);
-    	return restTemplate.exchange(
-                USER_SERVICE_PATH +"/users/" + id ,HttpMethod.PUT, request, String.class);
+    public ResponseEntity<String> updateUser(@RequestHeader HttpHeaders headers,
+            @RequestBody String json, @PathVariable Long id) {
+        HttpEntity<String> request = new HttpEntity<String>(json, headers);
+        try {
+            return restTemplate.exchange(USER_SERVICE_PATH + "/users/" + id,
+                    HttpMethod.PUT, request, String.class);
+        } catch (RestClientException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                    "Could not find User with id: " + id);
+        }
     }
 
     @DeleteMapping("/users/{id}")
-    public ResponseEntity<String> deleteUser(@RequestHeader HttpHeaders headers, @PathVariable Long id){
-    	HttpEntity<String> request = new HttpEntity<String>(headers);
-        return restTemplate.exchange(
-                USER_SERVICE_PATH +"/users/" + id, HttpMethod.DELETE, request, String.class);
+    public ResponseEntity<String> deleteUser(@RequestHeader HttpHeaders headers,
+            @PathVariable Long id) {
+        HttpEntity<String> request = new HttpEntity<String>(headers);
+        try {
+            return restTemplate.exchange(USER_SERVICE_PATH + "/users/" + id,
+                    HttpMethod.DELETE, request, String.class);
+        } catch (RestClientException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                    "Could not find User with id: " + id);
+        }
     }
-    
-    
+
     // Booking Service
 
     @GetMapping("/bookings")
@@ -152,5 +178,4 @@ public class OrchestratorController {
         return webClient.get().uri(BOOKING_SERVICE_PATH + "/bookings")
                 .retrieve().toEntity(String.class).block();
     }
-    
 }
