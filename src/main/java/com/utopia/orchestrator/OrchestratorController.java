@@ -6,6 +6,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -38,19 +39,21 @@ public class OrchestratorController {
     }
 
     // Airplane Service
-
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @GetMapping("/airplanes")
     public ResponseEntity<String> findAllAirplanes() {
         return webClient.get().uri(FLIGHT_SERVICE_PATH + "/airplanes")
                 .retrieve().toEntity(String.class).block();
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @GetMapping("/airplanes/{id}")
     public ResponseEntity<String> findAirplaneById(@PathVariable Long id) {
         return webClient.get().uri(FLIGHT_SERVICE_PATH + "/airplanes/{id}", id)
                 .retrieve().toEntity(String.class).block();
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @GetMapping("/airplanes/")
     public ResponseEntity<String> findByModelContaining(
             @RequestParam String model) {
@@ -59,6 +62,7 @@ public class OrchestratorController {
                 .retrieve().toEntity(String.class).block();
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @PostMapping("/airplanes")
     public ResponseEntity<String> createAirplane(@RequestBody String json) {
         return webClient.post().uri(FLIGHT_SERVICE_PATH + "/airplanes")
@@ -66,6 +70,7 @@ public class OrchestratorController {
                 .retrieve().toEntity(String.class).block();
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @PutMapping("/airplanes")
     public ResponseEntity<String> updateAirplane(@RequestBody String json) {
         return webClient.put().uri(FLIGHT_SERVICE_PATH + "/airplanes")
@@ -73,6 +78,7 @@ public class OrchestratorController {
                 .retrieve().toEntity(String.class).block();
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @DeleteMapping("/airplanes/{id}")
     public ResponseEntity<String> deleteAirplane(@PathVariable Long id) {
         return webClient.delete()
@@ -88,6 +94,7 @@ public class OrchestratorController {
                 HttpMethod.POST, new HttpEntity<String>(json), Object.class);
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @GetMapping("/users")
     public ResponseEntity<String> findAllUsers(
             @RequestHeader HttpHeaders headers) {
@@ -96,6 +103,7 @@ public class OrchestratorController {
                 HttpMethod.GET, request, String.class);
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_CUSTOMER')")
     @GetMapping("/users/{id}")
     public ResponseEntity<String> findUserById(
             @RequestHeader HttpHeaders headers, @PathVariable Long id) {
@@ -104,6 +112,7 @@ public class OrchestratorController {
                 HttpMethod.GET, request, String.class);
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @GetMapping("/users/username/{username}")
     public ResponseEntity<String> findUserByUsername(
             @RequestHeader HttpHeaders headers, @PathVariable String username) {
@@ -113,6 +122,7 @@ public class OrchestratorController {
                 HttpMethod.GET, request, String.class);
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @GetMapping("/users/email/{email}")
     public ResponseEntity<String> findUserByEmail(
             @RequestHeader HttpHeaders headers, @PathVariable String email) {
@@ -122,6 +132,7 @@ public class OrchestratorController {
                 request, String.class);
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @PostMapping("/users")
     public ResponseEntity<String> createUser(@RequestHeader HttpHeaders headers,
             @RequestBody String json) {
@@ -130,6 +141,7 @@ public class OrchestratorController {
                 HttpMethod.POST, request, String.class);
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @PutMapping("/users/{id}")
     public ResponseEntity<String> updateUser(@RequestHeader HttpHeaders headers,
             @RequestBody String json, @PathVariable Long id) {
@@ -138,6 +150,7 @@ public class OrchestratorController {
                 HttpMethod.PUT, request, String.class);
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @DeleteMapping("/users/{id}")
     public ResponseEntity<String> deleteUser(@RequestHeader HttpHeaders headers,
             @PathVariable Long id) {
@@ -148,12 +161,14 @@ public class OrchestratorController {
 
     // Booking Service
 
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @GetMapping("/bookings")
     public ResponseEntity<String> findAllBookings() {
         return webClient.get().uri(BOOKING_SERVICE_PATH + "/bookings")
                 .retrieve().toEntity(String.class).block();
     }
 
+    
     // Handle exceptions where the status code, headers, and body are known.
     @ExceptionHandler(HttpClientErrorException.class)
     public ResponseEntity<String> handleHttpClientErrorException(
