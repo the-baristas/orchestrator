@@ -1,10 +1,13 @@
 package com.utopia.orchestrator;
 
+import javax.ws.rs.Path;
+
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -18,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -149,21 +153,59 @@ public class OrchestratorController {
     // Booking Service
 
     @GetMapping("/bookings")
-    public ResponseEntity<String> findAllBookings() {
-        return webClient.get().uri(BOOKING_SERVICE_PATH + "/bookings")
+    public ResponseEntity<String> getAllBookings() {
+        return restTemplate.exchange(BOOKING_SERVICE_PATH + "/bookings",
+                HttpMethod.GET, null, String.class);
+    }
+
+    @GetMapping("/bookings/")
+    public ResponseEntity<String> findByConfirmationCodeContaining(
+            @RequestParam String confirmationCode) {
+        return webClient.get()
+                .uri(BOOKING_SERVICE_PATH
+                        + "/bookings/?confirmation_code={confirmationCode}",
+                        confirmationCode)
                 .retrieve().toEntity(String.class).block();
     }
 
-    // Handle exceptions where the status code, headers, and body are known.
-    @ExceptionHandler(HttpClientErrorException.class)
+    @PostMapping("/bookings")
+    public ResponseEntity<String> createBooking(@RequestBody String json) {
+        RequestEntity<String> requestEntity = RequestEntity
+                .post(BOOKING_SERVICE_PATH + "/bookings")
+                .contentType(MediaType.APPLICATION_JSON).body(json);
+        return restTemplate.exchange(requestEntity, String.class);
+    }
+
+    @PutMapping("/bookings/{id}")
+    public ResponseEntity<String> updateBooking(@PathVariable Long id,
+            @RequestBody String json) {
+        RequestEntity<String> requestEntity = RequestEntity
+                .put(BOOKING_SERVICE_PATH + "/bookings/{id}", id)
+                .contentType(MediaType.APPLICATION_JSON).body(json);
+        return restTemplate.exchange(requestEntity, String.class);
+    }
+
+    @DeleteMapping("/bookings/{id}")
+    public ResponseEntity<String> deleteBooking(@PathVariable Long id) {
+        RequestEntity<Void> requestEntity = RequestEntity
+                .delete(BOOKING_SERVICE_PATH + "/bookings/", id).build();
+        return restTemplate.exchange(requestEntity, String.class);
+    }
+
+    /**
+     * Handles exceptions where the status code, headers, and body are known.
+     */
+    @ExceptionHandler(RestClientResponseException.class)
     public ResponseEntity<String> handleHttpClientErrorException(
-            HttpClientErrorException e) {
-        return ResponseEntity.status(e.getStatusCode())
+            RestClientResponseException e) {
+        return ResponseEntity.status(e.getRawStatusCode())
                 .headers(e.getResponseHeaders())
                 .body(e.getResponseBodyAsString());
     }
 
-    // Handle exceptions where the status code, headers, and body are unknown.
+    /**
+     * Handles exceptions where the status code, headers, and body are unknown.
+     */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleUncaughtException(Exception exception) {
         System.out.printf("An unknown error occurred.", exception);
