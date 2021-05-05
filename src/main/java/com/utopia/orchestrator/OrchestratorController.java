@@ -153,9 +153,10 @@ public class OrchestratorController {
     @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @GetMapping("/users")
     public ResponseEntity<String> findAllUsers(
-            @RequestHeader HttpHeaders headers) {
+            @RequestHeader HttpHeaders headers,
+            @RequestParam(name="page") Integer page, @RequestParam(name="size") Integer size) {
         HttpEntity<String> request = new HttpEntity<String>(headers);
-        return restTemplate.exchange(USER_SERVICE_PATH + "/users",
+        return restTemplate.exchange(USER_SERVICE_PATH + "/users?page=" + page + "&size=" + size,
                 HttpMethod.GET, request, String.class);
     }
 
@@ -187,8 +188,18 @@ public class OrchestratorController {
                 USER_SERVICE_PATH + "/users/email/" + email, HttpMethod.GET,
                 request, String.class);
     }
-
+    
     @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
+    @GetMapping("/users/phone/{phone}")
+    public ResponseEntity<String> findUserByPhoneNumber(
+            @RequestHeader HttpHeaders headers, @PathVariable String phone) {
+        HttpEntity<String> request = new HttpEntity<String>(headers);
+        return restTemplate.exchange(
+                USER_SERVICE_PATH + "/users/phone/" + phone, HttpMethod.GET,
+                request, String.class);
+    }
+
+
     @PostMapping("/users")
     public ResponseEntity<String> createUser(@RequestHeader HttpHeaders headers,
             @RequestBody String json) {
