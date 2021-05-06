@@ -1,3 +1,5 @@
 Anthony Sirimarco - 4/22/2021 - Added users service endpoints
 
 Anthony Sirimarco - 4/27/2021 - Added role-based authorization with JWT tokens. Above each method in the controller is an annotation which specifies the roles a user must have to issue a request to it.
+
+Anthony Sirimarco - 5/5/2021 - Changed findAllUsers method to incorporate pagination. Added findUserByPhoneNumber.
