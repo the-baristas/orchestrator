@@ -1,11 +1,6 @@
 package com.utopia.orchestrator;
 
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 
 
@@ -89,14 +84,37 @@ public class OrchestratorController {
                 .toEntity(String.class).block();
     }
 
+    // ROUTES SERVICE
+
+    // get all routes
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
+    @GetMapping("/routes")
+    public ResponseEntity<String> findAllRoutes(@RequestHeader HttpHeaders headers) {
+        HttpEntity<String> request = new HttpEntity<String>(headers);
+        RequestEntity<Void> reqEntity = RequestEntity.get(FLIGHT_SERVICE_PATH + "/routes").headers(headers).build();
+        return restTemplate.exchange(FLIGHT_SERVICE_PATH + "/routes", HttpMethod.GET, request, String.class);
+    }
+
     // FLIGHT SERVICE
 
     // get all flights
     @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @GetMapping("/flights")
-    public ResponseEntity<String> findAllFlights() {
-        return webClient.get().uri(FLIGHT_SERVICE_PATH + "/flights")
-                .retrieve().toEntity(String.class).block();
+    public ResponseEntity<String> findAllFlights(@RequestHeader HttpHeaders headers) {
+        HttpEntity<String> request = new HttpEntity<String>(headers);
+        RequestEntity<Void> reqEntity = RequestEntity.get(FLIGHT_SERVICE_PATH + "/flights").headers(headers).build();
+        return restTemplate.exchange(FLIGHT_SERVICE_PATH + "/flights", HttpMethod.GET, request, String.class);
+    }
+
+    // get all flights
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
+    @GetMapping("/paged-flights")
+    public ResponseEntity<String> findAllFlightPages(@RequestHeader HttpHeaders headers,
+                                                     @RequestParam(defaultValue = "0") Integer pageNo,
+                                                     @RequestParam(defaultValue = "10") Integer pageSize,
+                                                     @RequestParam(defaultValue = "id") String sortBy) {
+        HttpEntity<String> request = new HttpEntity<String>(headers);
+        return restTemplate.exchange(FLIGHT_SERVICE_PATH + "/paged-flights?pageNo=" + pageNo + "&pageSize=" + pageSize + "&sortBy=" + sortBy, HttpMethod.GET, request, String.class);
     }
 
     // post new flight
@@ -134,7 +152,6 @@ public class OrchestratorController {
                 .toEntity(String.class).block();
     }
 
-    
     @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @GetMapping("/search/flightsbylocation")
     public ResponseEntity<String> findFlightsByRoute(@RequestParam(name = "originId") String originId,
@@ -167,12 +184,13 @@ public class OrchestratorController {
         return webClient.get().uri(FLIGHT_SERVICE_PATH + "/airports")
                 .retrieve().toEntity(String.class).block();
     }
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
-    @GetMapping("/routes")
-    public ResponseEntity<String> findAllRoutes() {
-        return webClient.get().uri(FLIGHT_SERVICE_PATH + "/routes")
-                .retrieve().toEntity(String.class).block();
-    }
+
+//    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
+//    @GetMapping("/routes")
+//    public ResponseEntity<String> findAllRoutes() {
+//        return webClient.get().uri(FLIGHT_SERVICE_PATH + "/routes")
+//                .retrieve().toEntity(String.class).block();
+//    }
 
     @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @GetMapping("/airports-containing")
