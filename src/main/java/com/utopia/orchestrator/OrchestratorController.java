@@ -1,7 +1,5 @@
 package com.utopia.orchestrator;
 
-import javax.ws.rs.Path;
-
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -20,7 +18,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -43,41 +40,75 @@ public class OrchestratorController {
 
     // Airplane Service
 
-    @GetMapping("/airplanes")
-    public ResponseEntity<String> findAllAirplanes() {
-        return webClient.get().uri(FLIGHT_SERVICE_PATH + "/airplanes")
-                .retrieve().toEntity(String.class).block();
+    // @GetMapping("airplanes")
+    // public ResponseEntity<String> getAllAirplanes() {
+    // return webClient.get().uri(FLIGHT_SERVICE_PATH + "/airplanes")
+    // .retrieve().toEntity(String.class).block();
+    // }
+
+    @GetMapping("airplanes/page")
+    public ResponseEntity<String> getAirplanesPage(
+            @RequestParam("index") Integer pageIndex,
+            @RequestParam("size") Integer pageSize) {
+        RequestEntity<Void> requestEntity = RequestEntity.get(
+                FLIGHT_SERVICE_PATH
+                        + "/airplanes/page?index={index}&size={size}",
+                pageIndex, pageSize).build();
+        return restTemplate.exchange(requestEntity, String.class);
     }
 
-    @GetMapping("/airplanes/{id}")
+    @GetMapping("airplanes/search")
+    public ResponseEntity<String> searchAirplanesPage(@RequestParam String term,
+            @RequestParam("index") Integer pageIndex,
+            @RequestParam("size") Integer pageSize) {
+        RequestEntity<Void> requestEntity = RequestEntity.get(
+                FLIGHT_SERVICE_PATH
+                        + "/airplanes/search?term={term}&index={index}&size={size}",
+                term, pageIndex, pageSize).build();
+        return restTemplate.exchange(requestEntity, String.class);
+    }
+
+    @GetMapping("airplanes/distinct_search")
+    public ResponseEntity<String> findDistinctAirplanesByModelContaining(
+            @RequestParam String term, @RequestParam("index") Integer pageIndex,
+            @RequestParam("size") Integer pageSize) {
+        RequestEntity<Void> requestEntity = RequestEntity.get(
+                FLIGHT_SERVICE_PATH
+                        + "/airplanes/distinct_search?term={term}&index={index}&size={size}",
+                term, pageIndex, pageSize).build();
+        return restTemplate.exchange(requestEntity, String.class);
+    }
+
+    @GetMapping("airplanes/{id}")
     public ResponseEntity<String> findAirplaneById(@PathVariable Long id) {
         return webClient.get().uri(FLIGHT_SERVICE_PATH + "/airplanes/{id}", id)
                 .retrieve().toEntity(String.class).block();
     }
 
-    @GetMapping("/airplanes/")
+    @GetMapping("airplanes")
     public ResponseEntity<String> findByModelContaining(
             @RequestParam String model) {
         return webClient.get()
-                .uri(FLIGHT_SERVICE_PATH + "/airplanes/?model={model}", model)
+                .uri(FLIGHT_SERVICE_PATH + "/airplanes?model={model}", model)
                 .retrieve().toEntity(String.class).block();
     }
 
-    @PostMapping("/airplanes")
+    @PostMapping("airplanes")
     public ResponseEntity<String> createAirplane(@RequestBody String json) {
         return webClient.post().uri(FLIGHT_SERVICE_PATH + "/airplanes")
                 .contentType(MediaType.APPLICATION_JSON).bodyValue(json)
                 .retrieve().toEntity(String.class).block();
     }
 
-    @PutMapping("/airplanes")
-    public ResponseEntity<String> updateAirplane(@RequestBody String json) {
-        return webClient.put().uri(FLIGHT_SERVICE_PATH + "/airplanes")
+    @PutMapping("airplanes/{id}")
+    public ResponseEntity<String> updateAirplane(@PathVariable Long id,
+            @RequestBody String json) {
+        return webClient.put().uri(FLIGHT_SERVICE_PATH + "/airplanes/{id}", id)
                 .contentType(MediaType.APPLICATION_JSON).bodyValue(json)
                 .retrieve().toEntity(String.class).block();
     }
 
-    @DeleteMapping("/airplanes/{id}")
+    @DeleteMapping("airplanes/{id}")
     public ResponseEntity<String> deleteAirplane(@PathVariable Long id) {
         return webClient.delete()
                 .uri(FLIGHT_SERVICE_PATH + "/airplanes/{id}", id).retrieve()
