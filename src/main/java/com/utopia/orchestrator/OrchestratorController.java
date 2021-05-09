@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -38,16 +39,11 @@ public class OrchestratorController {
         this.restTemplate = restTemplate;
     }
 
-    // Airplane Service
+    // Airplanes
 
-    // @GetMapping("airplanes")
-    // public ResponseEntity<String> getAllAirplanes() {
-    // return webClient.get().uri(FLIGHT_SERVICE_PATH + "/airplanes")
-    // .retrieve().toEntity(String.class).block();
-    // }
-
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @GetMapping("airplanes/page")
-    public ResponseEntity<String> getAirplanesPage(
+    public ResponseEntity<String> findAllAirplanes(
             @RequestParam("index") Integer pageIndex,
             @RequestParam("size") Integer pageSize) {
         RequestEntity<Void> requestEntity = RequestEntity.get(
@@ -57,9 +53,10 @@ public class OrchestratorController {
         return restTemplate.exchange(requestEntity, String.class);
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @GetMapping("airplanes/search")
-    public ResponseEntity<String> searchAirplanesPage(@RequestParam String term,
-            @RequestParam("index") Integer pageIndex,
+    public ResponseEntity<String> findAirplanesByModelContaining(
+            @RequestParam String term, @RequestParam("index") Integer pageIndex,
             @RequestParam("size") Integer pageSize) {
         RequestEntity<Void> requestEntity = RequestEntity.get(
                 FLIGHT_SERVICE_PATH
@@ -69,6 +66,7 @@ public class OrchestratorController {
     }
 
     @GetMapping("airplanes/distinct_search")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     public ResponseEntity<String> findDistinctAirplanesByModelContaining(
             @RequestParam String term, @RequestParam("index") Integer pageIndex,
             @RequestParam("size") Integer pageSize) {
@@ -79,12 +77,14 @@ public class OrchestratorController {
         return restTemplate.exchange(requestEntity, String.class);
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @GetMapping("airplanes/{id}")
     public ResponseEntity<String> findAirplaneById(@PathVariable Long id) {
         return webClient.get().uri(FLIGHT_SERVICE_PATH + "/airplanes/{id}", id)
                 .retrieve().toEntity(String.class).block();
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @GetMapping("airplanes")
     public ResponseEntity<String> findByModelContaining(
             @RequestParam String model) {
@@ -93,6 +93,7 @@ public class OrchestratorController {
                 .retrieve().toEntity(String.class).block();
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @PostMapping("airplanes")
     public ResponseEntity<String> createAirplane(@RequestBody String json) {
         return webClient.post().uri(FLIGHT_SERVICE_PATH + "/airplanes")
@@ -100,6 +101,7 @@ public class OrchestratorController {
                 .retrieve().toEntity(String.class).block();
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @PutMapping("airplanes/{id}")
     public ResponseEntity<String> updateAirplane(@PathVariable Long id,
             @RequestBody String json) {
@@ -108,11 +110,77 @@ public class OrchestratorController {
                 .retrieve().toEntity(String.class).block();
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @DeleteMapping("airplanes/{id}")
     public ResponseEntity<String> deleteAirplane(@PathVariable Long id) {
         return webClient.delete()
                 .uri(FLIGHT_SERVICE_PATH + "/airplanes/{id}", id).retrieve()
                 .toEntity(String.class).block();
+    }
+
+    // Flights
+
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
+    @GetMapping("/flights")
+    public ResponseEntity<String> findAllFlights() {
+        return webClient.get().uri(FLIGHT_SERVICE_PATH + "/flights").retrieve()
+                .toEntity(String.class).block();
+    }
+
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
+    @GetMapping("/flights/{id}")
+    public ResponseEntity<String> findFlightById(@PathVariable Long id) {
+        return webClient.get().uri(FLIGHT_SERVICE_PATH + "/flights/{id}", id)
+                .retrieve().toEntity(String.class).block();
+    }
+
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
+    @GetMapping("/search/flightsbylocation")
+    public ResponseEntity<String> findFlightsByRoute(
+            @RequestParam(name = "originId") String originId,
+            @RequestParam(name = "destinationId") String destinationId) {
+        return webClient.get().uri(FLIGHT_SERVICE_PATH
+                + "/search/flightsbylocation?originId={originId}&destinationId={destinationId}",
+                originId, destinationId).retrieve().toEntity(String.class)
+                .block();
+    }
+
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
+    @PostMapping("/search/flights-query")
+    public ResponseEntity<String> findFlightsByRouteAndLocation(
+            @RequestParam(name = "originId") String originId,
+            @RequestParam(name = "destinationId") String destinationId,
+            @RequestBody String json) {
+        return webClient.post().uri(FLIGHT_SERVICE_PATH
+                + "/search/flights-query?originId={originId}&destinationId={destinationId}",
+                originId, destinationId).contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(json).retrieve().toEntity(String.class).block();
+    }
+
+    // Airports
+
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
+    @GetMapping("/airports")
+    public ResponseEntity<String> findAllAirports() {
+        return webClient.get().uri(FLIGHT_SERVICE_PATH + "/airports").retrieve()
+                .toEntity(String.class).block();
+    }
+
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
+    @GetMapping("/routes")
+    public ResponseEntity<String> findAllRoutes() {
+        return webClient.get().uri(FLIGHT_SERVICE_PATH + "/routes").retrieve()
+                .toEntity(String.class).block();
+    }
+
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
+    @GetMapping("/airports-containing")
+    public ResponseEntity<String> findAirportsContaining(
+            @RequestParam(name = "contains") String contains) {
+        return webClient.get()
+                .uri(FLIGHT_SERVICE_PATH
+                        + "/airports-containing?contains={contains}", contains)
+                .retrieve().toEntity(String.class).block();
     }
 
     // User Service
@@ -123,14 +191,19 @@ public class OrchestratorController {
                 HttpMethod.POST, new HttpEntity<String>(json), Object.class);
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @GetMapping("/users")
     public ResponseEntity<String> findAllUsers(
-            @RequestHeader HttpHeaders headers) {
+            @RequestHeader HttpHeaders headers,
+            @RequestParam(name = "page") Integer page,
+            @RequestParam(name = "size") Integer size) {
         HttpEntity<String> request = new HttpEntity<String>(headers);
-        return restTemplate.exchange(USER_SERVICE_PATH + "/users",
+        return restTemplate.exchange(
+                USER_SERVICE_PATH + "/users?page=" + page + "&size=" + size,
                 HttpMethod.GET, request, String.class);
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_CUSTOMER')")
     @GetMapping("/users/{id}")
     public ResponseEntity<String> findUserById(
             @RequestHeader HttpHeaders headers, @PathVariable Long id) {
@@ -139,6 +212,7 @@ public class OrchestratorController {
                 HttpMethod.GET, request, String.class);
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @GetMapping("/users/username/{username}")
     public ResponseEntity<String> findUserByUsername(
             @RequestHeader HttpHeaders headers, @PathVariable String username) {
@@ -148,12 +222,23 @@ public class OrchestratorController {
                 HttpMethod.GET, request, String.class);
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @GetMapping("/users/email/{email}")
     public ResponseEntity<String> findUserByEmail(
             @RequestHeader HttpHeaders headers, @PathVariable String email) {
         HttpEntity<String> request = new HttpEntity<String>(headers);
         return restTemplate.exchange(
                 USER_SERVICE_PATH + "/users/email/" + email, HttpMethod.GET,
+                request, String.class);
+    }
+
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
+    @GetMapping("/users/phone/{phone}")
+    public ResponseEntity<String> findUserByPhoneNumber(
+            @RequestHeader HttpHeaders headers, @PathVariable String phone) {
+        HttpEntity<String> request = new HttpEntity<String>(headers);
+        return restTemplate.exchange(
+                USER_SERVICE_PATH + "/users/phone/" + phone, HttpMethod.GET,
                 request, String.class);
     }
 
@@ -165,6 +250,7 @@ public class OrchestratorController {
                 HttpMethod.POST, request, String.class);
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @PutMapping("/users/{id}")
     public ResponseEntity<String> updateUser(@RequestHeader HttpHeaders headers,
             @RequestBody String json, @PathVariable Long id) {
@@ -173,6 +259,7 @@ public class OrchestratorController {
                 HttpMethod.PUT, request, String.class);
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @DeleteMapping("/users/{id}")
     public ResponseEntity<String> deleteUser(@RequestHeader HttpHeaders headers,
             @PathVariable Long id) {
@@ -181,14 +268,16 @@ public class OrchestratorController {
                 HttpMethod.DELETE, request, String.class);
     }
 
-    // Booking Service
+    // Bookings
 
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @GetMapping("/bookings")
     public ResponseEntity<String> getAllBookings() {
         return restTemplate.exchange(BOOKING_SERVICE_PATH + "/bookings",
                 HttpMethod.GET, null, String.class);
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @GetMapping("/bookings/")
     public ResponseEntity<String> findByConfirmationCodeContaining(
             @RequestParam String confirmationCode) {
@@ -199,6 +288,7 @@ public class OrchestratorController {
                 .retrieve().toEntity(String.class).block();
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @PostMapping("/bookings")
     public ResponseEntity<String> createBooking(@RequestBody String json) {
         RequestEntity<String> requestEntity = RequestEntity
@@ -207,6 +297,7 @@ public class OrchestratorController {
         return restTemplate.exchange(requestEntity, String.class);
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @PutMapping("/bookings/{id}")
     public ResponseEntity<String> updateBooking(@PathVariable Long id,
             @RequestBody String json) {
@@ -216,6 +307,7 @@ public class OrchestratorController {
         return restTemplate.exchange(requestEntity, String.class);
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @DeleteMapping("/bookings/{id}")
     public ResponseEntity<String> deleteBooking(@PathVariable Long id) {
         RequestEntity<Void> requestEntity = RequestEntity
@@ -227,7 +319,7 @@ public class OrchestratorController {
      * Handles exceptions where the status code, headers, and body are known.
      */
     @ExceptionHandler(RestClientResponseException.class)
-    public ResponseEntity<String> handleHttpClientErrorException(
+    public ResponseEntity<String> handleRestClientResponseException(
             RestClientResponseException e) {
         return ResponseEntity.status(e.getRawStatusCode())
                 .headers(e.getResponseHeaders())
