@@ -270,8 +270,8 @@ public class OrchestratorController {
 
     // Bookings
 
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @GetMapping("/bookings")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     public ResponseEntity<String> getAllBookings() {
         return restTemplate.exchange(BOOKING_SERVICE_PATH + "/bookings",
                 HttpMethod.GET, null, String.class);
