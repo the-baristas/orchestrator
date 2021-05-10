@@ -20,7 +20,6 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 @CrossOrigin(exposedHeaders = "Authorization")
-
 @RestController
 public class OrchestratorController {
     private static final String FLIGHT_SERVICE_PATH = "http://flight-service";
@@ -95,26 +94,40 @@ public class OrchestratorController {
         return restTemplate.exchange(FLIGHT_SERVICE_PATH + "/routes", HttpMethod.GET, request, String.class);
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
+    @PostMapping("/routes")
+    public ResponseEntity<String> createRoute(@RequestHeader HttpHeaders headers,
+                                              @RequestBody String json,
+                                              @RequestParam String originId,
+                                              @RequestParam String destinationId) {
+        System.out.println(originId);
+        System.out.println(destinationId);
+        HttpEntity<String> request = new HttpEntity<String>(headers);
+        return webClient.post().uri(FLIGHT_SERVICE_PATH + "/routes", originId, destinationId)
+                .contentType(MediaType.APPLICATION_JSON).bodyValue(json)
+                .retrieve().toEntity(String.class).block();
+    }
+
     // FLIGHT SERVICE
+
+//    // get all flights
+//    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
+//    @GetMapping("/flights")
+//    public ResponseEntity<String> findAllFlights(@RequestHeader HttpHeaders headers) {
+//        HttpEntity<String> request = new HttpEntity<String>(headers);
+//        RequestEntity<Void> reqEntity = RequestEntity.get(FLIGHT_SERVICE_PATH + "/flights").headers(headers).build();
+//        return restTemplate.exchange(FLIGHT_SERVICE_PATH + "/flights", HttpMethod.GET, request, String.class);
+//    }
 
     // get all flights
     @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @GetMapping("/flights")
-    public ResponseEntity<String> findAllFlights(@RequestHeader HttpHeaders headers) {
-        HttpEntity<String> request = new HttpEntity<String>(headers);
-        RequestEntity<Void> reqEntity = RequestEntity.get(FLIGHT_SERVICE_PATH + "/flights").headers(headers).build();
-        return restTemplate.exchange(FLIGHT_SERVICE_PATH + "/flights", HttpMethod.GET, request, String.class);
-    }
-
-    // get all flights
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
-    @GetMapping("/paged-flights")
     public ResponseEntity<String> findAllFlightPages(@RequestHeader HttpHeaders headers,
                                                      @RequestParam(defaultValue = "0") Integer pageNo,
                                                      @RequestParam(defaultValue = "10") Integer pageSize,
                                                      @RequestParam(defaultValue = "id") String sortBy) {
         HttpEntity<String> request = new HttpEntity<String>(headers);
-        return restTemplate.exchange(FLIGHT_SERVICE_PATH + "/paged-flights?pageNo=" + pageNo + "&pageSize=" + pageSize + "&sortBy=" + sortBy, HttpMethod.GET, request, String.class);
+        return restTemplate.exchange(FLIGHT_SERVICE_PATH + "/flights?pageNo=" + pageNo + "&pageSize=" + pageSize + "&sortBy=" + sortBy, HttpMethod.GET, request, String.class);
     }
 
     // post new flight
@@ -177,6 +190,8 @@ public class OrchestratorController {
                 .contentType(MediaType.APPLICATION_JSON).bodyValue(json)
                 .retrieve().toEntity(String.class).block();
     }
+
+// AIRPORT SERVICE
 
     @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @GetMapping("/airports")
