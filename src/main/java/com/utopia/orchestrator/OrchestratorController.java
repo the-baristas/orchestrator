@@ -97,15 +97,28 @@ public class OrchestratorController {
     @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @PostMapping("/routes")
     public ResponseEntity<String> createRoute(@RequestHeader HttpHeaders headers,
-                                              @RequestBody String json,
-                                              @RequestParam String originId,
-                                              @RequestParam String destinationId) {
-        System.out.println(originId);
-        System.out.println(destinationId);
+                                              @RequestBody String json) {
         HttpEntity<String> request = new HttpEntity<String>(headers);
-        return webClient.post().uri(FLIGHT_SERVICE_PATH + "/routes", originId, destinationId)
+        return webClient.post().uri(FLIGHT_SERVICE_PATH + "/routes")
                 .contentType(MediaType.APPLICATION_JSON).bodyValue(json)
                 .retrieve().toEntity(String.class).block();
+    }
+
+    // update route
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
+    @PutMapping("/routes/{id}")
+    public ResponseEntity<String> updateRoute(@RequestBody String json, @PathVariable Long id) {
+        return webClient.put().uri(FLIGHT_SERVICE_PATH + "/routes/{id}", id)
+                .contentType(MediaType.APPLICATION_JSON).bodyValue(json)
+                .retrieve().toEntity(String.class).block();
+    }
+
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
+    @DeleteMapping("/routes/{id}")
+    public ResponseEntity<String> deleteRoute(@PathVariable Long id) {
+        return webClient.delete()
+                .uri(FLIGHT_SERVICE_PATH + "/routes/{id}", id).retrieve()
+                .toEntity(String.class).block();
     }
 
     // FLIGHT SERVICE
