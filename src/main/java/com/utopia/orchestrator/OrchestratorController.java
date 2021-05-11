@@ -84,6 +84,7 @@ public class OrchestratorController {
     }
 
     // ROUTES SERVICE
+    // pagination not implemented yet
 
     // get all routes
     @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
@@ -94,6 +95,7 @@ public class OrchestratorController {
         return restTemplate.exchange(FLIGHT_SERVICE_PATH + "/routes", HttpMethod.GET, request, String.class);
     }
 
+    // create new route
     @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @PostMapping("/routes")
     public ResponseEntity<String> createRoute(@RequestHeader HttpHeaders headers,
@@ -113,6 +115,7 @@ public class OrchestratorController {
                 .retrieve().toEntity(String.class).block();
     }
 
+    // delete route
     @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @DeleteMapping("/routes/{id}")
     public ResponseEntity<String> deleteRoute(@PathVariable Long id) {
@@ -123,16 +126,7 @@ public class OrchestratorController {
 
     // FLIGHT SERVICE
 
-//    // get all flights
-//    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
-//    @GetMapping("/flights")
-//    public ResponseEntity<String> findAllFlights(@RequestHeader HttpHeaders headers) {
-//        HttpEntity<String> request = new HttpEntity<String>(headers);
-//        RequestEntity<Void> reqEntity = RequestEntity.get(FLIGHT_SERVICE_PATH + "/flights").headers(headers).build();
-//        return restTemplate.exchange(FLIGHT_SERVICE_PATH + "/flights", HttpMethod.GET, request, String.class);
-//    }
-
-    // get all flights
+    // get all flight pages
     @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @GetMapping("/flights")
     public ResponseEntity<String> findAllFlightPages(@RequestHeader HttpHeaders headers,
@@ -170,6 +164,7 @@ public class OrchestratorController {
                 .retrieve().toEntity(String.class).block();
     }
 
+    // delete flight
     @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @DeleteMapping("/flights/{id}")
     public ResponseEntity<String> deleteFlight(@PathVariable Long id) {
