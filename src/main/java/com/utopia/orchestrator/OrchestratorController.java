@@ -183,13 +183,15 @@ public class OrchestratorController {
                 .retrieve().toEntity(String.class).block();
     }
 
-    // User Service
+    // Login
 
     @PostMapping("/login")
     public ResponseEntity<Object> login(@RequestBody String json) {
         return restTemplate.exchange("http://user-service/login",
                 HttpMethod.POST, new HttpEntity<String>(json), Object.class);
     }
+
+    // Users
 
     @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @GetMapping("/users")
@@ -270,22 +272,20 @@ public class OrchestratorController {
 
     // Bookings
 
-    @GetMapping("/bookings")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
+    @GetMapping("/bookings")
     public ResponseEntity<String> getAllBookings() {
         return restTemplate.exchange(BOOKING_SERVICE_PATH + "/bookings",
                 HttpMethod.GET, null, String.class);
     }
 
     @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
-    @GetMapping("/bookings/")
+    @GetMapping("/bookings/search")
     public ResponseEntity<String> findByConfirmationCodeContaining(
             @RequestParam String confirmationCode) {
-        return webClient.get()
-                .uri(BOOKING_SERVICE_PATH
-                        + "/bookings/?confirmation_code={confirmationCode}",
-                        confirmationCode)
-                .retrieve().toEntity(String.class).block();
+        return webClient.get().uri(BOOKING_SERVICE_PATH
+                + "/bookings/search?confirmation_code={confirmationCode}",
+                confirmationCode).retrieve().toEntity(String.class).block();
     }
 
     @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
@@ -309,10 +309,50 @@ public class OrchestratorController {
 
     @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @DeleteMapping("/bookings/{id}")
-    public ResponseEntity<String> deleteBooking(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteBooking(@PathVariable Long id) {
         RequestEntity<Void> requestEntity = RequestEntity
-                .delete(BOOKING_SERVICE_PATH + "/bookings/", id).build();
+                .delete(BOOKING_SERVICE_PATH + "/bookings/{id}", id).build();
+        return restTemplate.exchange(requestEntity, Void.class);
+    }
+
+    // Passengers
+
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
+    @GetMapping("/passengers")
+    public ResponseEntity<String> findAllPassengers(
+            @RequestParam("index") Integer pageIndex,
+            @RequestParam("size") Integer pageSize) {
+        RequestEntity<Void> requestEntity = RequestEntity.get(
+                BOOKING_SERVICE_PATH + "/passengers?index={index}&size={size}",
+                pageIndex, pageSize).build();
         return restTemplate.exchange(requestEntity, String.class);
+    }
+
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
+    @PostMapping("/passengers")
+    public ResponseEntity<String> createPassenger(@RequestBody String json) {
+        RequestEntity<String> requestEntity = RequestEntity
+                .post(BOOKING_SERVICE_PATH + "/passengers")
+                .contentType(MediaType.APPLICATION_JSON).body(json);
+        return restTemplate.exchange(requestEntity, String.class);
+    }
+
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
+    @PutMapping("/passengers/{id}")
+    public ResponseEntity<String> updatePassenger(@PathVariable Long id,
+            @RequestBody String json) {
+        RequestEntity<String> requestEntity = RequestEntity
+                .put(BOOKING_SERVICE_PATH + "/passengers/{id}", id)
+                .contentType(MediaType.APPLICATION_JSON).body(json);
+        return restTemplate.exchange(requestEntity, String.class);
+    }
+
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
+    @DeleteMapping("/passengers/{id}")
+    public ResponseEntity<Void> deletePassengerById(@PathVariable Long id) {
+        RequestEntity<Void> requestEntity = RequestEntity
+                .delete(BOOKING_SERVICE_PATH + "/passengers/{id}", id).build();
+        return restTemplate.exchange(requestEntity, Void.class);
     }
 
     /**
