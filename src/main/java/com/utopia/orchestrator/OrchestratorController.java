@@ -89,19 +89,23 @@ public class OrchestratorController {
     // get all routes
     @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @GetMapping("/routes")
-    public ResponseEntity<String> findAllRoutes(@RequestHeader HttpHeaders headers) {
+    public ResponseEntity<String> findAllRoutes(@RequestHeader HttpHeaders headers,
+                                                @RequestParam(defaultValue = "0") Integer pageNo,
+                                                @RequestParam(defaultValue = "10") Integer pageSize,
+                                                @RequestParam(defaultValue = "id") String sortBy) {
         HttpEntity<String> request = new HttpEntity<String>(headers);
-        RequestEntity<Void> reqEntity = RequestEntity.get(FLIGHT_SERVICE_PATH + "/routes").headers(headers).build();
-        return restTemplate.exchange(FLIGHT_SERVICE_PATH + "/routes", HttpMethod.GET, request, String.class);
+        return restTemplate.exchange(FLIGHT_SERVICE_PATH + "/routes?pageNo=" + pageNo + "&pageSize=" + pageSize + "&sortBy=" + sortBy, HttpMethod.GET, request, String.class);
     }
 
     @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @GetMapping("/routes-query")
     public ResponseEntity<String> queryRoutes(@RequestHeader HttpHeaders headers,
+                                              @RequestParam(defaultValue = "0") Integer pageNo,
+                                              @RequestParam(defaultValue = "10") Integer pageSize,
+                                              @RequestParam(defaultValue = "id") String sortBy,
                                               @RequestParam(name = "query") String query) {
         HttpEntity<String> request = new HttpEntity<String>(headers);
-        RequestEntity<Void> reqEntity = RequestEntity.get(FLIGHT_SERVICE_PATH + "/routes-query?query=" + query).headers(headers).build();
-        return restTemplate.exchange(FLIGHT_SERVICE_PATH + "/routes-query?query=" + query, HttpMethod.GET, request, String.class);
+       return restTemplate.exchange(FLIGHT_SERVICE_PATH + "/routes-query?query=" + query + "&pageNo=" + pageNo + "&pageSize=" + "&sortBy=" + sortBy, HttpMethod.GET, request, String.class);
     }
 
     // create new route
