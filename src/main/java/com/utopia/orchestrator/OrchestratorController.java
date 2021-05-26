@@ -120,15 +120,27 @@ public class OrchestratorController {
 
     // Routes
 
-    // get all routes
+  // get all routes
     @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @GetMapping("/routes")
-    public ResponseEntity<String> findAllRoutes() {
-        RequestEntity<Void> reqEntity = RequestEntity
-                .get(FLIGHT_SERVICE_PATH + "/routes").build();
-        return restTemplate.exchange(reqEntity, String.class);
+    public ResponseEntity<String> findAllRoutes(@RequestHeader HttpHeaders headers,
+                                                @RequestParam(defaultValue = "0") Integer pageNo,
+                                                @RequestParam(defaultValue = "10") Integer pageSize,
+                                                @RequestParam(defaultValue = "id") String sortBy) {
+        HttpEntity<String> request = new HttpEntity<String>(headers);
+        return restTemplate.exchange(FLIGHT_SERVICE_PATH + "/routes?pageNo=" + pageNo + "&pageSize=" + pageSize + "&sortBy=" + sortBy, HttpMethod.GET, request, String.class);
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
+    @GetMapping("/routes-query")
+    public ResponseEntity<String> queryRoutes(@RequestHeader HttpHeaders headers,
+                                              @RequestParam(defaultValue = "0") Integer pageNo,
+                                              @RequestParam(defaultValue = "10") Integer pageSize,
+                                              @RequestParam(defaultValue = "id") String sortBy,
+                                              @RequestParam(name = "query") String query) {
+        HttpEntity<String> request = new HttpEntity<String>(headers);
+       return restTemplate.exchange(FLIGHT_SERVICE_PATH + "/routes-query?query=" + query + "&pageNo=" + pageNo + "&pageSize=" + "&sortBy=" + sortBy, HttpMethod.GET, request, String.class);
+    }
     // create new route
     @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @PostMapping("/routes")
@@ -176,11 +188,9 @@ public class OrchestratorController {
 
     // post new flight
     @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
-    @PostMapping("/routes/{routeId}/flights")
-    public ResponseEntity<String> createFlight(@RequestBody String json,
-            @PathVariable Long routeId) {
-        return webClient.post()
-                .uri(FLIGHT_SERVICE_PATH + "/routes/{routeId}/flights", routeId)
+    @PostMapping("/flights")
+    public ResponseEntity<String> createFlight(@RequestBody String json) {
+        return webClient.post().uri(FLIGHT_SERVICE_PATH + "/flights")
                 .contentType(MediaType.APPLICATION_JSON).bodyValue(json)
                 .retrieve().toEntity(String.class).block();
     }
@@ -214,13 +224,10 @@ public class OrchestratorController {
 
     @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @GetMapping("/search/flightsbylocation")
-    public ResponseEntity<String> findFlightsByRoute(
-            @RequestParam(name = "originId") String originId,
-            @RequestParam(name = "destinationId") String destinationId) {
-        return webClient.get().uri(FLIGHT_SERVICE_PATH
-                + "/search/flightsbylocation?originId={originId}&destinationId={destinationId}",
-                originId, destinationId).retrieve().toEntity(String.class)
-                .block();
+    public ResponseEntity<String> findFlightsByRoute(@RequestParam(name = "originId") String originId,
+                                                     @RequestParam(name = "destinationId") String destinationId) {
+        return webClient.get().uri(FLIGHT_SERVICE_PATH + "/search/flightsbylocation?originId={originId}&destinationId={destinationId}", originId, destinationId)
+                .retrieve().toEntity(String.class).block();
     }
 
     @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
