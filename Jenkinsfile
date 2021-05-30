@@ -24,7 +24,7 @@ pipeline {
             steps {
                 echo 'Deploying....'
                 sh "aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin 135316859264.dkr.ecr.us-east-2.amazonaws.com"
-                sh "docker build -t eureka-server:latest ."
+                sh "docker build -t orchestrator:latest ."
                  sh "docker tag orchestrator:latest 135316859264.dkr.ecr.us-east-2.amazonaws.com/orchestrator:latest"
                  sh "docker push 135316859264.dkr.ecr.us-east-2.amazonaws.com/orchestrator:latest"
             }
