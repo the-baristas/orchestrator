@@ -373,6 +373,17 @@ public class OrchestratorController {
     }
 
     @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
+    @GetMapping("/bookings/{confirmation_code}")
+    public ResponseEntity<String> findByConfirmationCode(
+            @PathVariable("confirmation_code") String confirmationCode) {
+        final RequestEntity<Void> requestEntity = RequestEntity
+                .get(BOOKING_SERVICE_PATH + "/bookings/{confirmationCode}",
+                        confirmationCode)
+                .build();
+        return restTemplate.exchange(requestEntity, String.class);
+    }
+
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @GetMapping("/bookings/search")
     public ResponseEntity<String> findByConfirmationCodeContaining(
             @RequestParam String confirmationCode) {
@@ -418,6 +429,42 @@ public class OrchestratorController {
         RequestEntity<Void> requestEntity = RequestEntity.get(
                 BOOKING_SERVICE_PATH + "/passengers?index={index}&size={size}",
                 pageIndex, pageSize).build();
+        return restTemplate.exchange(requestEntity, String.class);
+    }
+
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
+    @GetMapping("/passengers/{id}")
+    public ResponseEntity<String> findPassengerById(
+            @RequestHeader HttpHeaders headers, @PathVariable Long id) {
+        RequestEntity<Void> requestEntity = RequestEntity
+                .get(BOOKING_SERVICE_PATH + "/passengers/{id}", id)
+                .headers(headers).build();
+        return restTemplate.exchange(requestEntity, String.class);
+    }
+
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
+    @GetMapping("/passengers/search")
+    public ResponseEntity<String> searchPassengers(
+            @RequestParam("term") String searchTerm,
+            @RequestParam("index") Integer pageIndex,
+            @RequestParam("size") Integer pageSize) {
+        RequestEntity<Void> requestEntity = RequestEntity.get(
+                BOOKING_SERVICE_PATH
+                        + "/passengers/search?term={term}&index={index}&size={size}",
+                searchTerm, pageIndex, pageSize).build();
+        return restTemplate.exchange(requestEntity, String.class);
+    }
+
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
+    @GetMapping("/passengers/distinct_search")
+    public ResponseEntity<String> searchDistinctPassengers(
+            @RequestParam("term") String searchTerm,
+            @RequestParam("index") Integer pageIndex,
+            @RequestParam("size") Integer pageSize) {
+        RequestEntity<Void> requestEntity = RequestEntity.get(
+                BOOKING_SERVICE_PATH
+                        + "/passengers/distinct_search?term={searchTerm}&index={pageIndex}&size={pageSize}",
+                searchTerm, pageIndex, pageSize).build();
         return restTemplate.exchange(requestEntity, String.class);
     }
 
