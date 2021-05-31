@@ -77,7 +77,7 @@ Resources:
             - Name: PORT
               Value: '8080'
             - Name: EUREKA_URL
-              Value: 52.15.232.97/eureka
+              Value: 52.15.232.97:8761/eureka
           Essential: true
           Memory: 1024
           LogConfiguration:
