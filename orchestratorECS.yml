@@ -76,6 +76,8 @@ Resources:
               Value: !Ref ApplicationEnvironment
             - Name: PORT
               Value: '8080'
+            - Name: EUERKA_URL
+              Value: 52.15.232.97/eureka
           Essential: true
           Memory: 1024
           LogConfiguration:
