@@ -38,6 +38,11 @@ public class OrchestratorController {
         this.webClient = webclient;
         this.restTemplate = restTemplate;
     }
+    
+	@GetMapping("health")
+	public String healthCheck() {
+		return "orchestrator is working";
+	}
 
     // Airplanes
 
