@@ -3,6 +3,8 @@ pipeline {
     environment {
         COMMIT_HASH = "${sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()}"
         AWS_ID = "135316859264"
+        SERVICE_NAME = "orchestrator"
+        ECR_URI = "135316859264.dkr.ecr.us-east-2.amazonaws.com"
     }
     stages {
         stage('Clean and test target') {
@@ -33,7 +35,7 @@ pipeline {
               steps {
                 
                 echo 'Deploying cloudformation..'
-                sh "aws cloudformation deploy --stack-name Orchestrator --template-file ./orchestratorECS.yml --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM --region us-east-2"
+                sh "aws cloudformation deploy --stack-name ${SERVICE_NAME}-stack --template-file ./orchestratorECS.yml  --parameter-overrides ApplicationName=${SERVICE_NAME} ECRepositoryUri=${ECR_REGISTRY_URI}/${SERVICE_NAME}:${COMMIT_HASH} --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM --region us-east-2"
               }
             }
     }
