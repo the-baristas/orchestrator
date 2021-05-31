@@ -4,7 +4,7 @@ pipeline {
         COMMIT_HASH = "${sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()}"
         AWS_ID = "135316859264"
         SERVICE_NAME = "orchestrator"
-        ECR_URI = "135316859264.dkr.ecr.us-east-2.amazonaws.com"
+        ECR_REGISTRY_URI = "135316859264.dkr.ecr.us-east-2.amazonaws.com"
     }
     stages {
         stage('Clean and test target') {
