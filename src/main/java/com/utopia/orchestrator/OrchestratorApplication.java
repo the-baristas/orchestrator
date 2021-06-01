@@ -1,5 +1,8 @@
 package com.utopia.orchestrator;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+
 import com.netflix.appinfo.AmazonInfo;
 
 import org.springframework.boot.SpringApplication;
@@ -41,12 +44,57 @@ public class OrchestratorApplication {
         return restTemplateBuilder.build();
     }
 
+    // @Bean
+    // @Profile("!default")
+    // public EurekaInstanceConfigBean eurekaInstanceConfig(InetUtils inetUtils)
+    // {
+    // EurekaInstanceConfigBean bean = new EurekaInstanceConfigBean(inetUtils);
+    // AmazonInfo info = AmazonInfo.Builder.newBuilder().autoBuild("eureka");
+    // bean.setDataCenterInfo(info);
+    // return bean;
+    // }
+
+    // @Bean
+    // @Profile("!default")
+    // public EurekaInstanceConfigBean eurekaInstanceConfig(InetUtils inetUtils)
+    // {
+    // EurekaInstanceConfigBean bean = new EurekaInstanceConfigBean(inetUtils);
+    // AmazonInfo info = AmazonInfo.Builder.newBuilder().autoBuild("eureka");
+    // bean.setDataCenterInfo(info);
+
+    // try {
+    // String json = readEcsMetadata();
+    // EcsTaskMetadata metadata = Converter.fromJsonString(json);
+    // String ipAddress = findContainerPrivateIP(metadata);
+    // bean.setIpAddress(ipAddress);
+    // bean.setNonSecurePort(getPortNumber());
+    // } catch (Exception ex) {
+    // e.printStackTrace();
+    // }
+    // return bean;
+    // }
+
     @Bean
     @Profile("!default")
     public EurekaInstanceConfigBean eurekaInstanceConfig(InetUtils inetUtils) {
-        EurekaInstanceConfigBean bean = new EurekaInstanceConfigBean(inetUtils);
-        AmazonInfo info = AmazonInfo.Builder.newBuilder().autoBuild("eureka");
-        bean.setDataCenterInfo(info);
-        return bean;
+        if (inetUtils != null) {
+            EurekaInstanceConfigBean config = new EurekaInstanceConfigBean(
+                    inetUtils);
+            String ip = null;
+            try {
+                ip = InetAddress.getLocalHost().getHostAddress();
+            } catch (UnknownHostException e) {
+                e.printStackTrace();
+            }
+            config.setIpAddress(ip);
+            config.setNonSecurePort(getPort());
+            config.setPreferIpAddress(true);
+            return config;
+        }
+        return null;
+    }
+
+    public Integer getPort() {
+        return 0;
     }
 }
