@@ -77,7 +77,7 @@ Resources:
             - Name: PORT
               Value: '8080'
             - Name: EUREKA_URL
-              Value: http://52.15.232.97:8761/eureka
+              Value: '{{resolve:secretsmanager:eureka-url:SecretString:eureka-url}}'
           Essential: true
           Memory: 1024
           LogConfiguration:
